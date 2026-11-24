@@ -47,6 +47,7 @@ export default defineConfig({
     ignorePatterns: [
         'drizzle.config.ts',
         'drizzle-out/**',
+        'keycloak/setup-realm.mjs',
         'hono/**',
         'drizzle/**',
         'serverentwicklung/**',

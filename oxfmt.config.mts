@@ -30,7 +30,7 @@ export default defineConfig({
             },
         },
     ],
-    ignorePatterns: ['*.md', 'postgres-setup/**'],
+    ignorePatterns: ['*.md', 'postgres-setup/**', 'keycloak/setup-realm.mjs'],
 
     // von .editorconfig übernommen:
     // end_of_line -> endOfLine
