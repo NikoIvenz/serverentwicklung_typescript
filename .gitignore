@@ -1,0 +1,16 @@
+# Reference material from the lecture, not part of this project
+/drizzle/
+/hono/
+/serverentwicklung/
+/Checkliste-TypeScript.pdf
+
+node_modules
+dist
+src/generated
+coverage
+log
+
+# Secrets
+.env
+.env.*
+!.env.example
