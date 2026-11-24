@@ -1,0 +1,14 @@
+node_modules
+dist
+src/generated
+coverage
+log
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Private keys
+keycloak/tls/key.pem
+/drizzle-out/

@@ -1,0 +1,75 @@
+{
+  "name": "auto",
+  "version": "2026.11.1",
+  "private": true,
+  "description": "REST API for vehicles with Hono and Drizzle",
+  "keywords": [
+    "Drizzle",
+    "Hono",
+    "Keycloak",
+    "Oxfmt",
+    "Oxlint",
+    "PostgreSQL",
+    "REST",
+    "TypeScript",
+    "Zod",
+    "pnpm"
+  ],
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env src/index.mts",
+    "test": "vitest",
+    "clean": "node --eval=\"import fs from 'node:fs/promises'; await fs.rm('dist', { recursive: true, force: true });\"",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "tsc": "tsc --pretty",
+    "tsrs": "tsrs --pretty",
+    "db:pull": "drizzle-kit pull",
+    "db:studio": "drizzle-kit studio",
+    "smoke": "node --env-file=.env src/smoke.mts"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.6",
+    "dotenv": "18.0.9",
+    "drizzle-orm": "1.0.0-rc.5",
+    "hono": "5.0.0-rc.0",
+    "jose": "6.2.15",
+    "pg": "8.23.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "5.10.0",
+    "@tsconfig/node-ts": "23.6.4",
+    "@tsconfig/node26": "26.0.1",
+    "@tsconfig/strictest": "2.0.8",
+    "@types/node": "26.6.6",
+    "@types/pg": "8.23.1",
+    "axios": "1.21.0",
+    "drizzle-kit": "1.0.0-rc.5",
+    "globals": "17.14.0",
+    "oxfmt": "0.77.0",
+    "oxlint": "1.92.0",
+    "tsrs": "0.23.0-ts7.1.0-beta",
+    "tsx": "4.23.15",
+    "typescript": "7.1.0-beta",
+    "vitest": "5.1.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^12.21.0",
+      "onFail": "warn"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^26.13.1",
+      "onFail": "warn"
+    }
+  },
+  "engines": {
+    "node": "^26.13.1",
+    "pnpm": "^12.21.0"
+  }
+}
