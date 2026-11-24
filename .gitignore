@@ -14,3 +14,6 @@ log
 .env
 .env.*
 !.env.example
+
+# Private keys
+keycloak/tls/key.pem
