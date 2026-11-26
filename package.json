@@ -18,7 +18,8 @@
   "type": "module",
   "scripts": {
     "start": "node --env-file=.env src/index.mts",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "node --eval=\"import fs from 'node:fs/promises'; await fs.rm('dist', { recursive: true, force: true });\"",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
