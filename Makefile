@@ -1,4 +1,4 @@
-.PHONY: help install db-up db-down kc-up kc-down smoke studio lint format fmt-check typecheck check
+.PHONY: help install run demo test db-up db-down kc-up kc-down smoke studio lint format fmt-check typecheck check
 
 PG := docker compose -f postgres-setup/compose.yml
 KC := docker compose -f keycloak/compose.yml
@@ -10,6 +10,15 @@ help: ## Show this help
 
 install: ## Install all dependencies
 	pnpm install
+
+run: ## Start the server (https://localhost:3000)
+	pnpm start
+
+demo: ## Run the demo requests against the running server (make run)
+	./scripts/demo.sh
+
+test: ## Run the integration tests (needs PostgreSQL and Keycloak)
+	pnpm test
 
 db-up: ## Start the PostgreSQL container
 	$(PG) up -d

@@ -26,10 +26,12 @@ export const autoTable = autoSchema.table(
         marke: text().notNull(),
         modell: text().notNull(),
         farbe: farbe(),
-        // The DB has no defaults for the timestamps, so Drizzle sets them.
-        erzeugt: timestamp().defaultNow().notNull(),
+        // The DB has no defaults for the timestamps, so the application sets them (not `defaultNow()`).
+        erzeugt: timestamp()
+            .$defaultFn(() => new Date())
+            .notNull(),
         aktualisiert: timestamp()
-            .defaultNow()
+            .$defaultFn(() => new Date())
             .$onUpdate(() => new Date())
             .notNull(),
     },

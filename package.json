@@ -18,7 +18,8 @@
   "type": "module",
   "scripts": {
     "start": "node --env-file=.env src/index.mts",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "node --eval=\"import fs from 'node:fs/promises'; await fs.rm('dist', { recursive: true, force: true });\"",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
@@ -48,11 +49,9 @@
     "@types/pg": "8.23.1",
     "axios": "1.21.0",
     "drizzle-kit": "1.0.0-rc.5",
-    "globals": "17.14.0",
     "oxfmt": "0.77.0",
     "oxlint": "1.92.0",
     "tsrs": "0.23.0-ts7.1.0-beta",
-    "tsx": "4.23.15",
     "typescript": "7.1.0-beta",
     "vitest": "5.1.0"
   },
