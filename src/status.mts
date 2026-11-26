@@ -12,4 +12,5 @@ export const STATUS = {
     unprocessable: 422,
     preconditionRequired: 428,
     internalServerError: 500,
+    serviceUnavailable: 503,
 } as const;

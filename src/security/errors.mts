@@ -9,3 +9,8 @@ export class UnauthorizedError extends Error {
 export class ForbiddenError extends Error {
     override name = 'ForbiddenError';
 }
+
+/** The token cannot be checked because Keycloak is not reachable. */
+export class AuthServiceUnavailableError extends Error {
+    override name = 'AuthServiceUnavailableError';
+}
