@@ -5,6 +5,7 @@ import { Hono } from 'hono';
 import { STATUS } from '../../status.mts';
 import { VersionOutdatedError } from '../service/errors.mts';
 import { problemDetails } from '../../problem-details.mts';
+import { rolesRequired } from '../../security/roles-required.mts';
 import { z } from 'zod';
 
 const DECIMAL = 10;
@@ -61,7 +62,8 @@ const readJson = async (req: { json: () => Promise<unknown> }) => {
     }
 };
 
-autoRouter.post('/', async (ctx) => {
+// Only administrators may create vehicles.
+autoRouter.post('/', rolesRequired('admin'), async (ctx) => {
     const json = await readJson(ctx.req);
     if (json === undefined) {
         return problemDetails(ctx, STATUS.badRequest, 'The request body is not valid JSON');
