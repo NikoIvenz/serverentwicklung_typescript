@@ -5,8 +5,8 @@ Each vehicle has a 1:1 license plate (`Kennzeichen`) and 1:N maintenance records
 
 ## Features
 
-- CRUD for vehicles including license plate and maintenance records
-- Search by brand (case-insensitive substring) and FIN (exact) with pagination
+- Read, create and update vehicles including license plate and maintenance records
+- Search by brand (case-insensitive substring) and FIN (exact)
 - Optimistic locking via `ETag` / `If-Match` and conditional reads via `If-None-Match`
 - Validation with Zod; errors as Problem Details (RFC 9457, `application/problem+json`)
 - HTTPS with HTTP/2 (self-signed certificate in `src/config/tls/`)
@@ -65,10 +65,9 @@ Each vehicle has a 1:1 license plate (`Kennzeichen`) and 1:N maintenance records
 | Method | Path          | Description                                  | Success                         | Access |
 | ------ | ------------- | -------------------------------------------- | ------------------------------- | ------ |
 | GET    | `/rest/{id}`  | Read a vehicle; honors `If-None-Match`       | 200 with `ETag`, 304            | public |
-| GET    | `/rest`       | Search with `marke`, `fin`, `page`, `size`   | 200 with pagination metadata    | public |
+| GET    | `/rest`       | Search with `marke` and `fin`                | 200 with a list                 | public |
 | POST   | `/rest`       | Create a vehicle with plate and maintenance  | 201 with `Location` and `ETag`  | `admin` |
 | PUT    | `/rest/{id}`  | Update master data; requires `If-Match`      | 204 with new `ETag`             | public |
-| DELETE | `/rest/{id}`  | Delete a vehicle including its relations     | 204                             | public |
 
 | Status | Cause                                                          |
 | ------ | -------------------------------------------------------------- |
@@ -109,7 +108,7 @@ adapted (names, timestamps). Never run `drizzle-kit push` or `drizzle-kit migrat
 
 The integration tests (Vitest and Axios over HTTP/2) start their own server on port 3001, so they
 need PostgreSQL, Keycloak and `CLIENT_SECRET` in `.env`. Every test creates its own vehicle with a
-unique FIN and deletes it afterwards.
+unique FIN and removes it from the DB afterwards.
 
 ```shell
 make test        # integration tests
