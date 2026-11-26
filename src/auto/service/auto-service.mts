@@ -48,6 +48,9 @@ const toDto = (row: NonNullable<Awaited<ReturnType<typeof findRow>>>): AutoDto =
     };
 };
 
+// In LIKE patterns `%` and `_` are wildcards; the brand is meant literally.
+const escapeLike = (value: string) => value.replaceAll(/[\\%_]/gu, String.raw`\$&`);
+
 /** Reads a vehicle including its license plate and maintenance records. */
 export const findById = async (id: number): Promise<AutoDto | undefined> => {
     const row = await findRow(id);
@@ -61,7 +64,7 @@ export const find = async ({ marke, fin }: SearchParams): Promise<readonly AutoD
         where: {
             RAW: (table) =>
                 and(
-                    marke === undefined ? undefined : ilike(table.marke, `%${marke}%`),
+                    marke === undefined ? undefined : ilike(table.marke, `%${escapeLike(marke)}%`),
                     fin === undefined ? undefined : eq(table.fin, fin),
                 ) ?? sql`true`,
         },

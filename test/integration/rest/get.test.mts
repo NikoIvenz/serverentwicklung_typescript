@@ -60,6 +60,15 @@ describe('GET /rest', () => {
         }
     });
 
+    test.each(['_', '%', 'b_w'])(
+        'treats the wildcard characters in %s literally',
+        async (marke) => {
+            const { data } = await client.get('', { params: { marke } });
+
+            expect(data).toHaveLength(0);
+        },
+    );
+
     test('searches by FIN exactly', async () => {
         const { data } = await client.get('', { params: { fin: 'WVWZZZ1JZXW000001' } });
 
