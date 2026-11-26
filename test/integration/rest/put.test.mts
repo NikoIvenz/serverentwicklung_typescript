@@ -76,6 +76,14 @@ describe('PUT /rest/:id with invalid requests', () => {
         await removeAuto(path);
     });
 
+    test('answers 404 for an id beyond the INTEGER range', async () => {
+        const { status } = await client.put('/99999999999', newAuto(), {
+            headers: { 'If-Match': '"0"' },
+        });
+
+        expect(status).toBe(STATUS.notFound);
+    });
+
     test('answers 404 for an unknown id', async () => {
         const { status } = await client.put('/999999', newAuto(), {
             headers: { 'If-Match': '"0"' },

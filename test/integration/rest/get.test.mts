@@ -33,6 +33,12 @@ describe('GET /rest/:id', () => {
         expect(status).toBe(STATUS.ok);
     });
 
+    test.each(['1abc', 'abc', '99999999999'])('answers 404 for the invalid id %s', async (id) => {
+        const { status } = await client.get(`/${id}`);
+
+        expect(status).toBe(STATUS.notFound);
+    });
+
     test('answers 404 as Problem Details for an unknown id', async () => {
         const { status, headers, data } = await client.get('/999999');
 
