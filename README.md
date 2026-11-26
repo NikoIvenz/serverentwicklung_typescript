@@ -14,7 +14,8 @@ Each vehicle has a 1:1 license plate (`Kennzeichen`) and 1:N maintenance records
 
 ## Prerequisites
 
-- Node 26.13.1 and pnpm 12.21.0
+- Node 26.13.1 and pnpm 12.21.0. With nvm: `source ~/.nvm/nvm.sh && nvm use` (reads `.nvmrc`).
+   Older Node versions cannot run `.mts` files.
 - Docker
 - Make (optional)
 
