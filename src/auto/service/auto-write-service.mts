@@ -6,6 +6,10 @@ import { db } from '../../config/db.mts';
 
 const UNIQUE_VIOLATION = '23505';
 
+// A concurrent request with the same FIN: the UNIQUE constraint decides.
+const isUniqueViolation = (error: unknown) =>
+    (error as { cause?: { code?: string } }).cause?.code === UNIQUE_VIOLATION;
+
 const finExists = async (fin: string, exceptId?: number) => {
     const found = await db.query.autoTable.findFirst({
         where: exceptId === undefined ? { fin } : { fin, id: { ne: exceptId } },
@@ -44,8 +48,7 @@ export const create = async ({
             return created;
         });
     } catch (error) {
-        // Concurrent request with the same FIN: the UNIQUE constraint decides.
-        if ((error as { cause?: { code?: string } }).cause?.code === UNIQUE_VIOLATION) {
+        if (isUniqueViolation(error)) {
             throw new FinExistsError(`FIN ${auto.fin} already exists`, { cause: error });
         }
         throw error;
@@ -80,7 +83,13 @@ export const update = async (
         .update(autoTable)
         .set({ ...fields, farbe: farbe ?? null, version: sql`${autoTable.version} + 1` })
         .where(and(eq(autoTable.id, id), eq(autoTable.version, version)))
-        .returning({ version: autoTable.version });
+        .returning({ version: autoTable.version })
+        .catch((error: unknown) => {
+            if (isUniqueViolation(error)) {
+                throw new FinExistsError(`FIN ${fields.fin} already exists`, { cause: error });
+            }
+            throw error;
+        });
     const [updated] = rows;
     if (updated === undefined) {
         throw new VersionOutdatedError(`Version ${version} is outdated`);

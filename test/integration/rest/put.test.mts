@@ -42,6 +42,26 @@ describe('PUT /rest/:id', () => {
     });
 });
 
+describe('PUT /rest/:id with the same new FIN in parallel', () => {
+    test('lets exactly one vehicle get the FIN and never answers 500', async () => {
+        const [first, second] = await Promise.all([createAuto(), createAuto()]);
+        const { fin } = newAuto();
+
+        const responses = await Promise.all(
+            [first, second].map(({ auto, path }) =>
+                client.put(path, { ...auto, fin }, { headers: { 'If-Match': '"0"' } }),
+            ),
+        );
+
+        expect(responses.map(({ status }) => status).toSorted()).toStrictEqual([
+            STATUS.noContent,
+            STATUS.unprocessable,
+        ]);
+        await removeAuto(first.path);
+        await removeAuto(second.path);
+    });
+});
+
 describe('PUT /rest/:id with invalid requests', () => {
     test('answers 428 without If-Match', async () => {
         const { auto, path } = await createAuto();
