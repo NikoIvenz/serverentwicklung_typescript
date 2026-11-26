@@ -49,11 +49,9 @@
     "@types/pg": "8.23.1",
     "axios": "1.21.0",
     "drizzle-kit": "1.0.0-rc.5",
-    "globals": "17.14.0",
     "oxfmt": "0.77.0",
     "oxlint": "1.92.0",
     "tsrs": "0.23.0-ts7.1.0-beta",
-    "tsx": "4.23.15",
     "typescript": "7.1.0-beta",
     "vitest": "5.1.0"
   },
