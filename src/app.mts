@@ -1,3 +1,4 @@
+import { FinExistsError, NotFoundError, VersionOutdatedError } from './auto/service/errors.mts';
 import { Hono } from 'hono';
 import { STATUS } from './status.mts';
 import { autoRouter } from './auto/router/auto-router.mts';
@@ -11,6 +12,15 @@ app.route('/rest', autoRouter);
 
 app.notFound((ctx) => problemDetails(ctx, STATUS.notFound));
 app.onError((cause, ctx) => {
+    if (cause instanceof NotFoundError) {
+        return problemDetails(ctx, STATUS.notFound, cause.message);
+    }
+    if (cause instanceof VersionOutdatedError) {
+        return problemDetails(ctx, STATUS.preconditionFailed, cause.message);
+    }
+    if (cause instanceof FinExistsError) {
+        return problemDetails(ctx, STATUS.unprocessable, cause.message);
+    }
     console.error(cause);
     return problemDetails(ctx, STATUS.internalServerError);
 });

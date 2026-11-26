@@ -1,6 +1,9 @@
+import { autoSchema, autoUpdateSchema } from './auto-schema.mts';
+import { create, deleteById, update } from '../service/auto-write-service.mts';
 import { find, findById } from '../service/auto-service.mts';
 import { Hono } from 'hono';
 import { STATUS } from '../../status.mts';
+import { VersionOutdatedError } from '../service/errors.mts';
 import { problemDetails } from '../../problem-details.mts';
 import { z } from 'zod';
 
@@ -47,4 +50,64 @@ autoRouter.get('/', async (ctx) => {
         return problemDetails(ctx, STATUS.unprocessable, z.prettifyError(parsed.error));
     }
     return ctx.json(await find(parsed.data));
+});
+
+// A malformed JSON body is a client error (400), not a validation error (422).
+const readJson = async (req: { json: () => Promise<unknown> }) => {
+    try {
+        return { body: await req.json() };
+    } catch {
+        return undefined;
+    }
+};
+
+autoRouter.post('/', async (ctx) => {
+    const json = await readJson(ctx.req);
+    if (json === undefined) {
+        return problemDetails(ctx, STATUS.badRequest, 'The request body is not valid JSON');
+    }
+    const parsed = autoSchema.safeParse(json.body);
+    if (!parsed.success) {
+        return problemDetails(ctx, STATUS.unprocessable, z.prettifyError(parsed.error));
+    }
+
+    const { id, version } = await create(parsed.data);
+    const location = `${new URL(ctx.req.url).origin}/rest/${id}`;
+    return ctx.body(null, STATUS.created, { Location: location, ETag: `"${version}"` });
+});
+
+autoRouter.put('/:id', async (ctx) => {
+    const id = Number.parseInt(ctx.req.param('id'), DECIMAL);
+    if (Number.isNaN(id)) {
+        return problemDetails(ctx, STATUS.notFound);
+    }
+
+    const ifMatch = ctx.req.header('If-Match');
+    if (ifMatch === undefined) {
+        return problemDetails(ctx, STATUS.preconditionRequired, 'Header If-Match is required');
+    }
+    const version = stripEtag(ifMatch);
+    if (!/^\d+$/u.test(version)) {
+        throw new VersionOutdatedError(`If-Match ${ifMatch} is not a version number`);
+    }
+
+    const json = await readJson(ctx.req);
+    if (json === undefined) {
+        return problemDetails(ctx, STATUS.badRequest, 'The request body is not valid JSON');
+    }
+    const parsed = autoUpdateSchema.safeParse(json.body);
+    if (!parsed.success) {
+        return problemDetails(ctx, STATUS.unprocessable, z.prettifyError(parsed.error));
+    }
+
+    const newVersion = await update(id, Number.parseInt(version, DECIMAL), parsed.data);
+    return ctx.body(null, STATUS.noContent, { ETag: `"${newVersion}"` });
+});
+
+autoRouter.delete('/:id', async (ctx) => {
+    const id = Number.parseInt(ctx.req.param('id'), DECIMAL);
+    if (!Number.isNaN(id)) {
+        await deleteById(id);
+    }
+    return ctx.body(null, STATUS.noContent);
 });
