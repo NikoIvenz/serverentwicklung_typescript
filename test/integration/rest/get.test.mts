@@ -33,6 +33,12 @@ describe('GET /rest/:id', () => {
         expect(status).toBe(STATUS.ok);
     });
 
+    test.each(['1abc', 'abc', '99999999999'])('answers 404 for the invalid id %s', async (id) => {
+        const { status } = await client.get(`/${id}`);
+
+        expect(status).toBe(STATUS.notFound);
+    });
+
     test('answers 404 as Problem Details for an unknown id', async () => {
         const { status, headers, data } = await client.get('/999999');
 
@@ -53,6 +59,15 @@ describe('GET /rest', () => {
             expect(auto.marke.toLowerCase()).toContain('bmw');
         }
     });
+
+    test.each(['_', '%', 'b_w'])(
+        'treats the wildcard characters in %s literally',
+        async (marke) => {
+            const { data } = await client.get('', { params: { marke } });
+
+            expect(data).toHaveLength(0);
+        },
+    );
 
     test('searches by FIN exactly', async () => {
         const { data } = await client.get('', { params: { fin: 'WVWZZZ1JZXW000001' } });

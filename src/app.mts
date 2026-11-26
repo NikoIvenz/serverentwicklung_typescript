@@ -1,5 +1,9 @@
+import {
+    AuthServiceUnavailableError,
+    ForbiddenError,
+    UnauthorizedError,
+} from './security/errors.mts';
 import { FinExistsError, NotFoundError, VersionOutdatedError } from './auto/service/errors.mts';
-import { ForbiddenError, UnauthorizedError } from './security/errors.mts';
 import { Hono } from 'hono';
 import { STATUS } from './status.mts';
 import { autoRouter } from './auto/router/auto-router.mts';
@@ -24,6 +28,9 @@ app.onError((cause, ctx) => {
     }
     if (cause instanceof UnauthorizedError) {
         return problemDetails(ctx, STATUS.unauthorized, cause.message);
+    }
+    if (cause instanceof AuthServiceUnavailableError) {
+        return problemDetails(ctx, STATUS.serviceUnavailable, cause.message);
     }
     if (cause instanceof ForbiddenError) {
         return problemDetails(ctx, STATUS.forbidden, cause.message);

@@ -9,6 +9,14 @@ import { rolesRequired } from '../../security/roles-required.mts';
 import { z } from 'zod';
 
 const DECIMAL = 10;
+// Largest value of the INTEGER column `id`; larger ids cannot exist.
+const MAX_ID = 2_147_483_647;
+
+// Strict, unlike parseInt: "1abc" and ids beyond the INTEGER range are not vehicle ids.
+const parseId = (value: string) => {
+    const id = /^\d+$/u.test(value) ? Number.parseInt(value, DECIMAL) : Number.NaN;
+    return id <= MAX_ID ? id : Number.NaN;
+};
 
 // The version is the ETag; weak validators (W/"1") and quotes are tolerated.
 const stripEtag = (value: string) => value.trim().replace(/^W\//u, '').replaceAll('"', '');
@@ -17,7 +25,7 @@ const stripEtag = (value: string) => value.trim().replace(/^W\//u, '').replaceAl
 export const autoRouter = new Hono();
 
 autoRouter.get('/:id', async (ctx) => {
-    const id = Number.parseInt(ctx.req.param('id'), DECIMAL);
+    const id = parseId(ctx.req.param('id'));
     if (Number.isNaN(id)) {
         return problemDetails(ctx, STATUS.notFound);
     }
@@ -67,7 +75,7 @@ autoRouter.post('/', rolesRequired('admin'), async (ctx) => {
 });
 
 autoRouter.put('/:id', async (ctx) => {
-    const id = Number.parseInt(ctx.req.param('id'), DECIMAL);
+    const id = parseId(ctx.req.param('id'));
     if (Number.isNaN(id)) {
         return problemDetails(ctx, STATUS.notFound);
     }

@@ -1,5 +1,5 @@
-import { ForbiddenError, UnauthorizedError } from './errors.mts';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { AuthServiceUnavailableError, ForbiddenError, UnauthorizedError } from './errors.mts';
+import { createRemoteJWKSet, errors, jwtVerify } from 'jose';
 import { type MiddlewareHandler } from 'hono';
 import { config } from '../config/config.mts';
 
@@ -30,6 +30,16 @@ export const rolesRequired =
             issuer,
             algorithms: ['RS256'],
         }).catch((error: unknown) => {
+            // Only a bad token is the client's fault; an unreachable Keycloak is not.
+            const keycloakProblem =
+                error instanceof errors.JWKSTimeout ||
+                error instanceof errors.JWKSInvalid ||
+                !(error instanceof errors.JOSEError);
+            if (keycloakProblem) {
+                throw new AuthServiceUnavailableError('Keycloak is not reachable', {
+                    cause: error,
+                });
+            }
             throw new UnauthorizedError('Token is invalid or expired', { cause: error });
         });
 
