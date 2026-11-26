@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@hono/node-server": "2.1.6",
-    "dotenv": "18.0.9",
     "drizzle-orm": "1.0.0-rc.5",
     "hono": "5.0.0-rc.0",
     "jose": "6.2.15",
@@ -48,6 +47,7 @@
     "@types/node": "26.6.6",
     "@types/pg": "8.23.1",
     "axios": "1.21.0",
+    "dotenv": "18.0.9",
     "drizzle-kit": "1.0.0-rc.5",
     "oxfmt": "0.77.0",
     "oxlint": "1.92.0",

@@ -178,9 +178,6 @@ importers:
       '@hono/node-server':
         specifier: 2.1.6
         version: 2.1.6(hono@5.0.0-rc.0)
-      dotenv:
-        specifier: 18.0.9
-        version: 18.0.9
       drizzle-orm:
         specifier: 1.0.0-rc.5
         version: 1.0.0-rc.5(@types/pg@8.23.1)(pg@8.23.1)(zod@4.6.7)
@@ -218,6 +215,9 @@ importers:
       axios:
         specifier: 1.21.0
         version: 1.21.0(debug@4.4.3)
+      dotenv:
+        specifier: 18.0.9
+        version: 18.0.9
       drizzle-kit:
         specifier: 1.0.0-rc.5
         version: 1.0.0-rc.5(drizzle-orm@1.0.0-rc.5(@types/pg@8.23.1)(pg@8.23.1)(zod@4.6.7))
