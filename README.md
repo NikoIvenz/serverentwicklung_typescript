@@ -105,6 +105,13 @@ adapted (names, timestamps). Never run `drizzle-kit push` or `drizzle-kit migrat
 
 `make studio` opens Drizzle Studio (select the schema `auto`) to browse the 1:1 and 1:N relations.
 
+## Demo
+
+With the server running (`make run`), `make demo` sends the requests one after the other, prints
+each one and checks the result: GET with `ETag` and `If-None-Match`, POST with and without the role
+`admin`, PUT with `If-Match` (428, 204, 412). It waits before it removes the vehicle it created, so
+the new row can be shown in Drizzle Studio (`make studio`) first.
+
 ## Tests and Code Quality
 
 The integration tests (Vitest and Axios over HTTP/2) start their own server on port 3001, so they
