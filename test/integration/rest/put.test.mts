@@ -1,4 +1,4 @@
-import { createAuto, newAuto } from './test-data.mts';
+import { createAuto, newAuto, removeAuto } from './test-data.mts';
 import { describe, expect, test } from 'vitest';
 import { STATUS } from '../../../src/status.mts';
 import { client } from './client.mts';
@@ -20,7 +20,7 @@ describe('PUT /rest/:id', () => {
         const { data, headers } = await client.get(path);
         expect(data.modell).toBe('Model Y');
         expect(headers['etag']).toBe('"1"');
-        await client.delete(path);
+        await removeAuto(path);
     });
 
     test('rejects a lost update with 412', async () => {
@@ -38,7 +38,7 @@ describe('PUT /rest/:id', () => {
         expect(status).toBe(STATUS.preconditionFailed);
         const { data } = await client.get(path);
         expect(data.modell).toBe('First');
-        await client.delete(path);
+        await removeAuto(path);
     });
 });
 
@@ -49,7 +49,7 @@ describe('PUT /rest/:id with invalid requests', () => {
         const { status } = await client.put(path, auto);
 
         expect(status).toBe(STATUS.preconditionRequired);
-        await client.delete(path);
+        await removeAuto(path);
     });
 
     test('answers 412 if If-Match is not a version', async () => {
@@ -58,7 +58,7 @@ describe('PUT /rest/:id with invalid requests', () => {
         const { status } = await client.put(path, auto, { headers: { 'If-Match': 'abc' } });
 
         expect(status).toBe(STATUS.preconditionFailed);
-        await client.delete(path);
+        await removeAuto(path);
     });
 
     test('answers 422 for an invalid body', async () => {
@@ -73,7 +73,7 @@ describe('PUT /rest/:id with invalid requests', () => {
         );
 
         expect(status).toBe(STATUS.unprocessable);
-        await client.delete(path);
+        await removeAuto(path);
     });
 
     test('answers 404 for an unknown id', async () => {

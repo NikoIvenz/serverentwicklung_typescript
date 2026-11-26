@@ -3,7 +3,6 @@ import { STATUS } from '../../../src/status.mts';
 import { client } from './client.mts';
 
 const SEED_ID = 1;
-const PAGE_SIZE = 2;
 
 describe('GET /rest/:id', () => {
     test('returns a vehicle with plate, maintenance records and ETag', async () => {
@@ -49,8 +48,8 @@ describe('GET /rest', () => {
         const { status, data } = await client.get('', { params: { marke: 'bmw' } });
 
         expect(status).toBe(STATUS.ok);
-        expect(data.content.length).toBeGreaterThan(0);
-        for (const auto of data.content) {
+        expect(data.length).toBeGreaterThan(0);
+        for (const auto of data) {
             expect(auto.marke.toLowerCase()).toContain('bmw');
         }
     });
@@ -58,22 +57,7 @@ describe('GET /rest', () => {
     test('searches by FIN exactly', async () => {
         const { data } = await client.get('', { params: { fin: 'WVWZZZ1JZXW000001' } });
 
-        expect(data.totalElements).toBe(1);
-        expect(data.content[0].id).toBe(SEED_ID);
-    });
-
-    test('paginates', async () => {
-        const { data } = await client.get('', { params: { page: 0, size: PAGE_SIZE } });
-
-        expect(data.content).toHaveLength(PAGE_SIZE);
-        expect(data.size).toBe(PAGE_SIZE);
-        expect(data.totalPages).toBe(Math.ceil(data.totalElements / PAGE_SIZE));
-    });
-
-    test('answers 422 for an invalid page size', async () => {
-        const { status, headers } = await client.get('', { params: { size: 1000 } });
-
-        expect(status).toBe(STATUS.unprocessable);
-        expect(headers['content-type']).toContain('application/problem+json');
+        expect(data).toHaveLength(1);
+        expect(data[0].id).toBe(SEED_ID);
     });
 });

@@ -1,5 +1,5 @@
 import { autoSchema, autoUpdateSchema } from './auto-schema.mts';
-import { create, deleteById, update } from '../service/auto-write-service.mts';
+import { create, update } from '../service/auto-write-service.mts';
 import { find, findById } from '../service/auto-service.mts';
 import { Hono } from 'hono';
 import { STATUS } from '../../status.mts';
@@ -9,15 +9,6 @@ import { rolesRequired } from '../../security/roles-required.mts';
 import { z } from 'zod';
 
 const DECIMAL = 10;
-const DEFAULT_SIZE = 5;
-const MAX_SIZE = 100;
-
-const searchSchema = z.object({
-    marke: z.string().optional(),
-    fin: z.string().optional(),
-    page: z.coerce.number().int().min(0).default(0),
-    size: z.coerce.number().int().min(1).max(MAX_SIZE).default(DEFAULT_SIZE),
-});
 
 // The version is the ETag; weak validators (W/"1") and quotes are tolerated.
 const stripEtag = (value: string) => value.trim().replace(/^W\//u, '').replaceAll('"', '');
@@ -46,11 +37,8 @@ autoRouter.get('/:id', async (ctx) => {
 });
 
 autoRouter.get('/', async (ctx) => {
-    const parsed = searchSchema.safeParse(ctx.req.query());
-    if (!parsed.success) {
-        return problemDetails(ctx, STATUS.unprocessable, z.prettifyError(parsed.error));
-    }
-    return ctx.json(await find(parsed.data));
+    const { marke, fin } = ctx.req.query();
+    return ctx.json(await find({ marke, fin }));
 });
 
 // A malformed JSON body is a client error (400), not a validation error (422).
@@ -104,12 +92,4 @@ autoRouter.put('/:id', async (ctx) => {
 
     const newVersion = await update(id, Number.parseInt(version, DECIMAL), parsed.data);
     return ctx.body(null, STATUS.noContent, { ETag: `"${newVersion}"` });
-});
-
-autoRouter.delete('/:id', async (ctx) => {
-    const id = Number.parseInt(ctx.req.param('id'), DECIMAL);
-    if (!Number.isNaN(id)) {
-        await deleteById(id);
-    }
-    return ctx.body(null, STATUS.noContent);
 });

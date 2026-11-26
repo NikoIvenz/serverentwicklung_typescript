@@ -1,5 +1,5 @@
 import { bearer, getToken } from './token.mts';
-import { createAuto, newAuto } from './test-data.mts';
+import { createAuto, newAuto, removeAuto } from './test-data.mts';
 import { describe, expect, test } from 'vitest';
 import { STATUS } from '../../../src/status.mts';
 import { client } from './client.mts';
@@ -20,7 +20,7 @@ describe('POST /rest', () => {
         expect(created.data).toMatchObject({ fin: auto.fin, marke: 'TESLA' });
         expect(created.data.wartungen).toHaveLength(1);
 
-        await client.delete(location, { baseURL: '' });
+        await removeAuto(location);
     });
 
     test('answers 401 without token', async () => {
@@ -57,6 +57,6 @@ describe('POST /rest', () => {
         });
 
         expect(status).toBe(STATUS.unprocessable);
-        await client.delete(path);
+        await removeAuto(path);
     });
 });

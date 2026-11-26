@@ -10,6 +10,7 @@ export default defineConfig({
     test: {
         include: ['test/integration/**/*.test.mts'],
         globalSetup: ['./test/integration/setup.global.mts'],
+        setupFiles: ['./test/integration/setup.worker.mts'],
         // Test files share one database, so they run one after the other.
         fileParallelism: false,
     },

@@ -1,5 +1,4 @@
 import { and, eq, ilike, sql } from 'drizzle-orm';
-import { autoTable } from '../../db/schema.mts';
 import { db } from '../../config/db.mts';
 
 /** Vehicle with license plate and maintenance records; `version` is sent as ETag only. */
@@ -14,21 +13,10 @@ export type AutoDto = Readonly<{
     wartungen: readonly Readonly<{ beschreibung: string; kosten: string }>[];
 }>;
 
-/** Search criteria and page. `page` starts at 0. */
+/** Search criteria; every criterion is optional. */
 export type SearchParams = Readonly<{
     marke?: string | undefined;
     fin?: string | undefined;
-    page: number;
-    size: number;
-}>;
-
-/** One page of search results. */
-export type Slice = Readonly<{
-    content: readonly AutoDto[];
-    page: number;
-    size: number;
-    totalElements: number;
-    totalPages: number;
 }>;
 
 // Fetch both relations in one query to avoid N+1 lookups.
@@ -66,31 +54,19 @@ export const findById = async (id: number): Promise<AutoDto | undefined> => {
     return row === undefined ? undefined : toDto(row);
 };
 
-/** Searches vehicles by brand (case-insensitive substring) and FIN (exact), page by page. */
-export const find = async ({ marke, fin, page, size }: SearchParams): Promise<Slice> => {
-    // RQB aliases the table, so the condition is built from the table that is passed in.
-    const buildWhere = (table: typeof autoTable) =>
-        and(
-            marke === undefined ? undefined : ilike(table.marke, `%${marke}%`),
-            fin === undefined ? undefined : eq(table.fin, fin),
-        ) ?? sql`true`;
-
-    const [totalElements, rows] = await Promise.all([
-        db.$count(autoTable, buildWhere(autoTable)),
-        db.query.autoTable.findMany({
-            where: { RAW: (table) => buildWhere(table) },
-            with: { kennzeichenTable: true, wartungTable: true },
-            orderBy: { id: 'asc' },
-            limit: size,
-            offset: page * size,
-        }),
-    ]);
-
-    return {
-        content: rows.map((row) => toDto(row)),
-        page,
-        size,
-        totalElements,
-        totalPages: Math.ceil(totalElements / size),
-    };
+/** Searches vehicles by brand (case-insensitive substring) and FIN (exact). */
+export const find = async ({ marke, fin }: SearchParams): Promise<readonly AutoDto[]> => {
+    const rows = await db.query.autoTable.findMany({
+        // RQB aliases the table, so the condition is built from the table that is passed in.
+        where: {
+            RAW: (table) =>
+                and(
+                    marke === undefined ? undefined : ilike(table.marke, `%${marke}%`),
+                    fin === undefined ? undefined : eq(table.fin, fin),
+                ) ?? sql`true`,
+        },
+        with: { kennzeichenTable: true, wartungTable: true },
+        orderBy: { id: 'asc' },
+    });
+    return rows.map((row) => toDto(row));
 };

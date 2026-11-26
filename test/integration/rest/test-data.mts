@@ -1,5 +1,8 @@
 import { bearer, getToken } from './token.mts';
+import { autoTable } from '../../../src/db/schema.mts';
 import { client } from './client.mts';
+import { db } from '../../../src/config/db.mts';
+import { eq } from 'drizzle-orm';
 import { randomInt } from 'node:crypto';
 
 const DATE_DIGITS = 8;
@@ -27,4 +30,10 @@ export const createAuto = async (auto = newAuto()) => {
     const { headers } = await client.post('', auto, { headers: bearer(await getToken('admin')) });
     const location = String(headers['location']);
     return { auto, path: location.slice(location.lastIndexOf('/')) };
+};
+
+/** Deletes a test vehicle directly in the DB; the REST interface has no DELETE. */
+export const removeAuto = async (pathOrLocation: string) => {
+    const id = Number(pathOrLocation.slice(pathOrLocation.lastIndexOf('/') + 1));
+    await db.delete(autoTable).where(eq(autoTable.id, id));
 };

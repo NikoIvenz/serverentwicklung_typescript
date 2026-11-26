@@ -87,8 +87,3 @@ export const update = async (
     }
     return updated.version;
 };
-
-/** Deletes a vehicle; the DB cascades to license plate and maintenance records. */
-export const deleteById = async (id: number) => {
-    await db.delete(autoTable).where(eq(autoTable.id, id));
-};
